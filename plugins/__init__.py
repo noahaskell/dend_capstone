@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from airflow.plugins_manager import AirflowPlugin
 
-import operators
+from process_sas7bdat import ProcessSas7bdatOperator
 # import helpers
 
 
@@ -10,7 +10,7 @@ import operators
 class CapstonePlugin(AirflowPlugin):
     name = "capstone_plugin"
     operators = [
-        operators.ProcessSas7bdatOperator
+        ProcessSas7bdatOperator
     ]
     # helpers = [
     #    helpers.SqlQueries
