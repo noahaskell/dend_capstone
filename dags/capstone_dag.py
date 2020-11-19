@@ -3,8 +3,8 @@ from airflow import DAG
 # https://stackoverflow.com/a/58640550/3297752
 #  says drop the airflow prefix, but that doesn't seem to work
 # leaving off the process_sas7bdat seems to work?
-from airflow.operators import ProcessSas7bdatOperator
-
+from airflow.operators.process_sas7bdat import ProcessSas7bdatOperator
+from airflow.operators.dummy_operator import DummyOperator
 
 # add start_date, end_date?
 default_args = {
@@ -15,8 +15,14 @@ default_args = {
 
 dag = DAG(
     'capstone_dag',
+    default_args=default_args,
     description='Load and transform i94 data in Redshift with Airflow',
     schedule_interval='@daily'
+)
+
+start_operator = DummyOperator(
+    task_id='start_execution',
+    dag=dag
 )
 
 process_sas_data = ProcessSas7bdatOperator(
@@ -27,4 +33,4 @@ process_sas_data = ProcessSas7bdatOperator(
     s3_write_key='csv-data'
 )
 
-process_sas_data
+start_operator >> process_sas_data
