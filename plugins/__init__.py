@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from airflow.plugins_manager import AirflowPlugin
 
-from process_sas7bdat import ProcessSas7bdatOperator
+from operators.process_sas7bdat import ProcessSas7bdatOperator
 # import helpers
 
 
