@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 
 
-class ProcessSas7bdatOperator(BaseOperator):
+class ProcessSasOperator(BaseOperator):
     ui_color = '#358140'
 
     @apply_defaults
@@ -16,7 +16,7 @@ class ProcessSas7bdatOperator(BaseOperator):
                  s3_write_key="",
                  *args, **kwargs):
 
-        super(ProcessSas7bdatOperator, self).__init__(*args, **kwargs)
+        super(ProcessSasOperator, self).__init__(*args, **kwargs)
         self.s3_bucket = s3_bucket
         self.s3_read_key = s3_read_key
         self.s3_write_key = s3_write_key

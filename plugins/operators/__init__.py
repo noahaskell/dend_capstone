@@ -1,5 +1,5 @@
-from operators.process_sas7bdat import ProcessSas7bdatOperator
+from operators.process_sas import ProcessSasOperator
 
 __all__ = [
-    'ProcessSas7bdatOperator'
+    'ProcessSasOperator'
 ]
