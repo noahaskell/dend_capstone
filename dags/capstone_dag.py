@@ -6,6 +6,7 @@ from airflow.operators.dummy_operator import DummyOperator
 #  says drop the airflow prefix, but that doesn't seem to work
 # leaving off the process_sas seems to work?
 from airflow.operators.capstone_plugin import ProcessSasOperator
+# from airflow.helpers.functions import sas_to_csv
 
 # add start_date, end_date?
 default_args = {
@@ -33,8 +34,9 @@ process_sas_task = ProcessSasOperator(
     dag=dag,
     aws_credentials_id='aws_credentials',
     s3_bucket='nhs-dend-capstone',
-    s3_read_key='sas-data/i94_jan16_sub.sas7bdat',
-    s3_write_key='csv-data/jan16.csv'
+    s3_read_key='sas-data',
+    s3_write_key='csv-data'
+    # rtw_func=sas_to_csv
 )
 
 start_operator >> process_sas_task

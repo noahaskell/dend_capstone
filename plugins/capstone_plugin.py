@@ -4,7 +4,7 @@
 from airflow.plugins_manager import AirflowPlugin
 
 from operators.process_sas import ProcessSasOperator
-# import helpers
+# from helpers.functions import sas_to_csv
 
 
 # Defining the plugin class
@@ -14,5 +14,5 @@ class CapstonePlugin(AirflowPlugin):
         ProcessSasOperator
     ]
     # helpers = [
-    #    helpers.SqlQueries
+    #    sas_to_csv
     # ]
