@@ -48,9 +48,9 @@ class ProcessSasOperator(BaseOperator):
 
         # for mapping i94 country codes to country names
         self.log.info("reading country data")
-        citres_obj = s3_hook.get_key("i94cit_i94res.csv",
-                                     bucket_name=self.s3_bucket)
-        ctry = pd.read_csv(citres_obj.get()['Body'])
+        ctry_obj = s3_hook.get_key("i94cit_i94res.csv",
+                                   bucket_name=self.s3_bucket)
+        ctry = pd.read_csv(ctry_obj.get()['Body'])
         ctry_dict = {
             ctry.loc[i, 'code']: ctry.loc[i, 'country'] for i in ctry.index
         }
