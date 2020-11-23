@@ -34,7 +34,7 @@ process_sas_task = ProcessSasOperator(
     aws_credentials_id='aws_credentials',
     s3_bucket='nhs-dend-capstone',
     s3_read_key='sas-data/i94_jan16_sub.sas7bdat',
-    s3_write_key='csv-data'
+    s3_write_key='csv-data/jan16.csv'
 )
 
 start_operator >> process_sas_task

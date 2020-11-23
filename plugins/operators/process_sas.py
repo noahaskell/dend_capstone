@@ -103,9 +103,11 @@ class ProcessSasOperator(BaseOperator):
         # boto3 related: ERROR - Fileobj must implement read
         # write dg as csv to s3
         self.log.info("writing transformed data as csv")
-        stream = StringIO()
-        s3_hook.load_file_obj(
-            dg.to_csv(stream, index=False),
+        csv_buf = StringIO()
+        dg.to_csv(csv_buf, header=True, index=False)
+        csv_buf.seek(0)
+        s3_hook.load_string(
+            csv_buf.getvalue(),
             key=self.s3_write_key,
             bucket_name=self.s3_bucket
         )
