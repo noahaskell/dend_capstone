@@ -60,12 +60,12 @@ def sas_to_csv(s3_hook, s3_bucket, s3_read_key,
         for logging operations
     """
     logger.info("reading state data")
-    states_obj = s3_hook.get_key("states.csv", bucket_name=s3_bucket)
+    states_obj = s3_hook.get_key("supp/states.csv", bucket_name=s3_bucket)
     states = pd.read_csv(states_obj.get()['Body'])
     state_dict = {bytes(x, 'utf-8'): x for x in states['state']}
 
     logger.info("reading country data")
-    ctry_obj = s3_hook.get_key("i94cit_i94res.csv",
+    ctry_obj = s3_hook.get_key("supp/i94cit_i94res.csv",
                                bucket_name=s3_bucket)
     ctry = pd.read_csv(ctry_obj.get()['Body'])
     ctry_dict = {

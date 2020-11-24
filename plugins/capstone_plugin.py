@@ -4,6 +4,9 @@
 from airflow.plugins_manager import AirflowPlugin
 
 from operators.process_sas import ProcessSasOperator
+from operators.stage_redshift import StageToRedshiftOperator
+import helpers
+
 # from helpers.functions import sas_to_csv
 
 
@@ -11,8 +14,9 @@ from operators.process_sas import ProcessSasOperator
 class CapstonePlugin(AirflowPlugin):
     name = "capstone_plugin"
     operators = [
-        ProcessSasOperator
+        ProcessSasOperator,
+        StageToRedshiftOperator
     ]
-    # helpers = [
-    #    sas_to_csv
-    # ]
+    helpers = [
+        helpers.sql_statements
+    ]
