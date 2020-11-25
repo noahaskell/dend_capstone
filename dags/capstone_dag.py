@@ -34,7 +34,7 @@ start_operator = DummyOperator(
 
 process_sas_task = ProcessSasOperator(
     task_id='sas_to_csv',
-    dag=dag,
+    # dag=dag,
     aws_credentials_id='aws_credentials',
     s3_bucket='nhs-dend-capstone',
     s3_read_key='sas-data',
@@ -54,7 +54,7 @@ stage_events_task = StageToRedshiftOperator(
     dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
-    table="staging_events",
+    table="staged_events",
     s3_bucket="nhs-dend-capstone",
     s3_key="csv-data"
 )
@@ -129,7 +129,7 @@ stage_iso_task = StageToRedshiftOperator(
     s3_key="supp/iso_country_codes.csv"
 )
 
-stage_remittance_task = StageToRedshiftOperator(
+stage_remit_task = StageToRedshiftOperator(
     task_id="stage_remittance",
     dag=dag,
     redshift_conn_id="redshift",
@@ -161,7 +161,7 @@ stage_income_task = StageToRedshiftOperator(
 
 # start_operator >> process_sas_task
 start_operator >> create_tables_task
-create_tables_task >> [stage_growth_task, stage_area_task, stage_pop_task,
-                       stage_eco_task, stage_lang_task, stage_happiness_task,
-                       stage_iso_task, stage_remittance_task, stage_gdp_task,
-                       stage_income_task]
+create_tables_task >> [stage_events_task, stage_growth_task, stage_area_task,
+                       stage_pop_task, stage_eco_task, stage_lang_task,
+                       stage_happiness_task, stage_iso_task,
+                       stage_remit_task, stage_gdp_task, stage_income_task]

@@ -14,6 +14,7 @@ class StageToRedshiftOperator(BaseOperator):
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
         FORMAT AS CSV
+        IGNOREHEADER 1
     """
 
     @apply_defaults
