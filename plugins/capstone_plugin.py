@@ -7,7 +7,8 @@ from operators.process_sas import ProcessSasOperator
 from operators.stage_redshift import StageToRedshiftOperator
 from operators.load_fact import LoadFactOperator
 from operators.load_dimension import LoadDimensionOperator
-from helpers import sql_statements
+from operators.data_quality import DataQualityOperator
+from helpers import sql_statements, functions
 
 # from helpers.functions import sas_to_csv
 
@@ -19,8 +20,10 @@ class CapstonePlugin(AirflowPlugin):
         ProcessSasOperator,
         StageToRedshiftOperator,
         LoadFactOperator,
-        LoadDimensionOperator
+        LoadDimensionOperator,
+        DataQualityOperator
     ]
     helpers = [
-        sql_statements
+        sql_statements,
+        functions
     ]

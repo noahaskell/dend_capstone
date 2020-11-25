@@ -72,22 +72,6 @@ ORDER BY state
 # area in square km
 # num_lan = 9 --> <10
 create_tables = """
-    CREATE TABLE IF NOT EXISTS public.immigration_fact (
-        id int IDENTITY(1,1) PRIMARY KEY,
-        state char(2),
-        cit_country varchar(64),
-        res_country varchar(64),
-        female_count smallint,
-        visa_business_count smallint,
-        visa_pleasure_count smallint,
-        total_count smallint,
-        age_mean numeric,
-        stay_dur_mean numeric,
-        year smallint,
-        month smallint,
-        day smallint,
-        weekday char(3)
-    );
     CREATE TABLE IF NOT EXISTS public.country_dim (
         country varchar(64) PRIMARY KEY,
         iso_code char(2),
@@ -106,7 +90,8 @@ create_tables = """
         official_lang varchar(128),
         happiness_rank smallint,
         happiness_score numeric(4,3)
-    );
+    )
+    DISTSTYLE ALL;
     CREATE TABLE IF NOT EXISTS public.state_dim (
         state char(2) PRIMARY KEY,
         year smallint,
@@ -124,7 +109,27 @@ create_tables = """
         gdp_all_q4 numeric(8,1),
         gdp_government_q4 numeric(8,1),
         gdp_private_q4 numeric(8,1)
-    );
+    )
+    DISTSTYLE ALL;
+    CREATE TABLE IF NOT EXISTS public.immigration_fact (
+        id int IDENTITY(1,1) PRIMARY KEY,
+        state char(2),
+        cit_country varchar(64),
+        res_country varchar(64),
+        female_count smallint,
+        visa_business_count smallint,
+        visa_pleasure_count smallint,
+        total_count smallint,
+        age_mean numeric,
+        stay_dur_mean numeric,
+        year smallint,
+        month smallint,
+        day smallint,
+        weekday char(3),
+        FOREIGN KEY(cit_country) REFERENCES country_dim(country),
+        FOREIGN KEY(res_country) REFERENCES country_dim(country),
+        FOREIGN KEY(state) REFERENCES state_dim (state))
+    DISTSTYLE EVEN;
     CREATE TABLE IF NOT EXISTS public.staged_events (
         state char(2),
         cit_country varchar(64),
