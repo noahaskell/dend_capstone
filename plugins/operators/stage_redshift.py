@@ -6,7 +6,8 @@ import logging
 
 
 class StageToRedshiftOperator(BaseOperator):
-    # ui_color = '#358140'
+
+    ui_color = '#1A9EEA'
 
     copy_sql = """
         COPY {}

@@ -2,12 +2,15 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
+from airflow.utils.helpers import cross_downstream
 
 # https://stackoverflow.com/a/58640550/3297752
 #  says drop the airflow prefix, but that doesn't seem to work
 # leaving off the process_sas seems to work?
 from airflow.operators.capstone_plugin import (ProcessSasOperator,
-                                               StageToRedshiftOperator)
+                                               StageToRedshiftOperator,
+                                               LoadFactOperator,
+                                               LoadDimensionOperator)
 # from airflow.helpers.functions import sas_to_csv
 from helpers import sql_statements
 
@@ -44,14 +47,14 @@ process_sas_task = ProcessSasOperator(
 
 create_tables_task = PostgresOperator(
     task_id='create_tables',
-    dag=dag,
+    # dag=dag,
     postgres_conn_id='redshift',
     sql=sql_statements.create_tables
 )
 
 stage_events_task = StageToRedshiftOperator(
     task_id="stage_events",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="staged_events",
@@ -61,7 +64,7 @@ stage_events_task = StageToRedshiftOperator(
 
 stage_growth_task = StageToRedshiftOperator(
     task_id="stage_growth",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_growth",
@@ -71,7 +74,7 @@ stage_growth_task = StageToRedshiftOperator(
 
 stage_area_task = StageToRedshiftOperator(
     task_id="stage_area",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_area",
@@ -81,7 +84,7 @@ stage_area_task = StageToRedshiftOperator(
 
 stage_pop_task = StageToRedshiftOperator(
     task_id="stage_pop",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_pop",
@@ -91,7 +94,7 @@ stage_pop_task = StageToRedshiftOperator(
 
 stage_eco_task = StageToRedshiftOperator(
     task_id="stage_eco",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_eco",
@@ -101,7 +104,7 @@ stage_eco_task = StageToRedshiftOperator(
 
 stage_lang_task = StageToRedshiftOperator(
     task_id="stage_lang",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_lang",
@@ -111,7 +114,7 @@ stage_lang_task = StageToRedshiftOperator(
 
 stage_happiness_task = StageToRedshiftOperator(
     task_id="stage_happiness",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="country_happiness",
@@ -121,7 +124,7 @@ stage_happiness_task = StageToRedshiftOperator(
 
 stage_iso_task = StageToRedshiftOperator(
     task_id="stage_iso",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="iso_country_codes",
@@ -131,7 +134,7 @@ stage_iso_task = StageToRedshiftOperator(
 
 stage_remit_task = StageToRedshiftOperator(
     task_id="stage_remittance",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="remittance",
@@ -141,7 +144,7 @@ stage_remit_task = StageToRedshiftOperator(
 
 stage_gdp_task = StageToRedshiftOperator(
     task_id="stage_gdp",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="state_gdp",
@@ -151,7 +154,7 @@ stage_gdp_task = StageToRedshiftOperator(
 
 stage_income_task = StageToRedshiftOperator(
     task_id="stage_income",
-    dag=dag,
+    # dag=dag,
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
     table="state_income",
@@ -159,9 +162,50 @@ stage_income_task = StageToRedshiftOperator(
     s3_key="supp/state_income_2016.csv"
 )
 
+stage_state_name_task = StageToRedshiftOperator(
+    task_id="stage_state_names",
+    # dag=dag,
+    redshift_conn_id="redshift",
+    aws_credentials_id="aws_credentials",
+    table="state_names",
+    s3_bucket="nhs-dend-capstone",
+    s3_key="supp/state_names_codes.csv"
+)
+
+load_fact_task = LoadFactOperator(
+    task_id="load_immigration_fact_table",
+    dag=dag,
+    redshift_conn_id="redshift",
+    sql=sql_statements.immigration_insert,
+    table="immigration_fact",
+    append_data=False
+)
+
+load_country_dim_task = LoadDimensionOperator(
+    task_id="load_country_dim_table",
+    dag=dag,
+    redshift_conn_id="redshift",
+    sql=sql_statements.country_insert,
+    table="country_dim"
+)
+
+load_state_dim_task = LoadDimensionOperator(
+    task_id="load_state_dim_table",
+    dag=dag,
+    redshift_conn_id="redshift",
+    sql=sql_statements.state_insert,
+    table="state_dim"
+)
+
+stage_list = [stage_events_task, stage_growth_task, stage_area_task,
+              stage_pop_task, stage_eco_task, stage_lang_task,
+              stage_happiness_task, stage_iso_task, stage_remit_task,
+              stage_gdp_task, stage_income_task, stage_state_name_task]
+
+load_list = [load_fact_task, load_country_dim_task, load_state_dim_task]
+
 # start_operator >> process_sas_task
-start_operator >> create_tables_task
-create_tables_task >> [stage_events_task, stage_growth_task, stage_area_task,
-                       stage_pop_task, stage_eco_task, stage_lang_task,
-                       stage_happiness_task, stage_iso_task,
-                       stage_remit_task, stage_gdp_task, stage_income_task]
+# start_operator >> create_tables_task
+# create_tables_task >> stage_list
+# cross_downstream(stage_list, load_list)
+start_operator >> load_list
